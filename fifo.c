@@ -2,19 +2,25 @@
 
 
 
-Fifo * initFifo(int size) {
-    
-    Fifo *fifo = malloc(sizeof(*fifo));    // 3
-    Fifo *current = fifo;    // 2
-    
-    for (int i = 1 ; i < size ; i++) {    // 3
-        current->next = malloc(sizeof(*current));    // 3
-        current->noeud = NULL;    // 1
-        current = current->next;    // 2
+Fifo *initFifo(unsigned int size) {
+  
+    if (size <= 1) {
+        printf("erreur : la taille de la file doit être >= 2\n");
+        exit(1);
     }
-    current->next = fifo;    // 2
     
-    return fifo;    // 2
+    Fifo *fifo = malloc(sizeof(*fifo));
+    Fifo *current = fifo;
+    
+    for (unsigned int i = 1 ; i < size ; i++) {
+        current->next = malloc(sizeof(*current));
+        current->noeud = NULL;
+        current = current->next;
+    }
+    current->next = fifo;
+    current->noeud = NULL;
+    
+    return fifo;
     
 }
 
@@ -22,16 +28,16 @@ Fifo * initFifo(int size) {
 
 void freeFifo(Fifo *fifo) {
     
-    Fifo *current = fifo;    // 2
-    Fifo *back;    // 1
+    Fifo *current = fifo;
+    Fifo *back;
     
     do {
         
-        back = current;    // 2
-        current = current->next;    // 2
-        free(back);    // 2
+        back = current;
+        current = current->next;
+        free(back);
         
-    } while (current != fifo);    // 3
+    } while (current != fifo);
     
 }
 
@@ -39,20 +45,18 @@ void freeFifo(Fifo *fifo) {
 
 bool isEmpty(Fifo *fifo) {
     
-    Fifo *current = fifo;   // 2
-    bool isEmpty = true;   // 1
+    Fifo *current = fifo;
     
     do {
         
-        if (current->noeud) {   // 2
-            isEmpty = false;   // 1
-            break;
+        if (current->noeud) {
+            return false;
         }
-        current = current->next;   // 2
+        current = current->next;
         
-    } while (current != fifo);   // 3
+    } while (current != fifo);
     
-    return isEmpty;   // 2
+    return true;
         
 }
 
@@ -61,27 +65,25 @@ bool isEmpty(Fifo *fifo) {
 bool isFull(Fifo *fifo) {
     
     Fifo *current = fifo;
-    bool isFull = true;
     
     do {
         
         if (!current->noeud) {
-            isFull = false;
-            break;
+            return false;
         }
         current = current->next;
         
     } while (current != fifo);
     
-    return isFull;
+    return true;
     
 }
 
 
 
 Fifo * head(Fifo *fifo) {
-    
-    return fifo;
+
+    return queue(fifo)->next;
     
 }
 
@@ -89,67 +91,47 @@ Fifo * head(Fifo *fifo) {
 
 Fifo * queue(Fifo *fifo) {
     
-    Fifo *current = fifo;
-    do {
-        
-        current = current->next;
-        
-    } while (current != fifo);
-        
+    Fifo *current;
+    
+    for (current = fifo ; current->next != fifo ; current = current->next);
     return current;
+
 }
 
 
 
-bool enfiler(Fifo *fifo, Noeud element) {
+bool enfiler(Fifo *fifo, Noeud *element) {
     
-    Fifo *current = fifo;
-    if (!isFull(fifo)) {
-        do {
-            
-            if (!current->noeud) {
-                current->noeud = &element;
-                return true;
-            } else {
-                current = current->next;
-            }
-        } while (current != fifo);
+    if (isFull(fifo) || !element) {
+        return false;
     }
-    return false;
+    
+    Fifo *current;
+    for (current = fifo ; current->noeud ; current = current->next);  // on ne met pas de condition pour si on arrive au bout de la file puisqu'il y a une place de libre (testé au dessus)
+    current->noeud = element;
+    
+    return true;
+    
 }
 
 
 
-Fifo * defiler(Fifo **fifo) {
+Noeud * defiler(Fifo *fifo) {
     
-    Fifo *defile = *fifo;
-    
-    if (!defile) {
+    if (isEmpty(fifo)) {
         return NULL;
-    } else {
-        *fifo = (*fifo)->next;
-        return defile;
     }
     
-}
-
-
-
-void printFifo(Fifo *fifo) {
-    
     Fifo *current = fifo;
+    Noeud *toReturn = current->noeud;
+    for ( ; current->next != fifo ; current = current->next) {
+        current->noeud = (current->next)->noeud;
+    }
+    current->noeud = NULL;
     
-    do {
-        
-        printf("(%i, %i, %i)\n", ((current->noeud)->cle)->x, ((current->noeud)->cle)->y, ((current->noeud)->cle)->z);
-        current = current->next;
-        
-    } while (current != fifo);
+    return toReturn;
     
 }
-
-
-
 
 
 

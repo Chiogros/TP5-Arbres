@@ -7,37 +7,46 @@
 
 int main() {
 
-    srand(time(NULL));  // 1 + 1 + 1
+    unsigned int size = 7;
+    
+    srand(time(NULL));  // pour la valeur aléatoire lors de la suppression d'un nœud
     
     Point repere = { 0, 0, 0 };
-    Noeud racine = { NULL, NULL, NULL };
+    Noeud racine = { NULL, NULL, NULL};
+    Fifo *fifo = initFifo(size);
     
-    while (1) {    // 1
+    while (1) {
         
-        Point *p = malloc(sizeof(*p));    // 1 + 1 + 1
-        int val;    // 1
+        Point *p = malloc(sizeof(*p));
+        int val;
         
-        printf("1 - ajouter un point\n");    // 1
-        printf("2 - retirer un point\n");    // 1
-        printf("3 - afficher l'arbre\n");    // 1
-        printf("Que voulez-vous faire : ");    // 1
+        printf("1 - ajouter un point\n");
+        if (racine.cle) {
+            printf("2 - retirer un point\n");
+        }
+        printf("3 - afficher l'arbre\n");
+        printf("Que voulez-vous faire : ");
         
-        scanf(" %i", &val);    // 1 + 1
+        scanf(" %i", &val);
         
-        switch (val) {    // 1
-            case 1:    // 1
-                printf("Quelles valeurs (x, y, z) du point voulez-vous ajouter : \n");    // 1
-                printf("x : ");    // 1
-                scanf(" %i", &(p->x));    // 1 + 1
-                printf("y : ");    // 1
-                scanf(" %i", &(p->y));    // 1 + 1
-                printf("z : ");    // 1
-                scanf(" %i", &(p->z));    // 1 + 1
-                if (!InsererNoeud(&repere, &racine, p)) {
+        switch (val) {
+            case 1:
+                printf("Quelles valeurs (x, y, z) du point voulez-vous ajouter : \n");
+                printf("x : ");
+                scanf(" %i", &(p->x));
+                printf("y : ");
+                scanf(" %i", &(p->y));
+                printf("z : ");
+                scanf(" %i", &(p->z));
+                if (!InsererNoeud(&racine, p, &repere, fifo)) {
                     printf("Le point "); AfficherPoint(p); printf(" existe déjà\n");
                 }
                 break;
             case 2:
+                if (!racine.cle) {
+                    printf("Impossible de supprimer un point : l'arbre est vide\n");
+                    break;
+                }
                 printf("Quelles valeurs (x, y, z) du point voulez-vous retirer : \n");
                 printf("x : ");
                 scanf(" %i", &(p->x));
@@ -45,7 +54,7 @@ int main() {
                 scanf(" %i", &(p->y));
                 printf("z : ");
                 scanf(" %i", &(p->z));
-                if (!SupprimerNoeud(&racine, p)) {
+                if (!SupprimerNoeud(&racine, p, fifo)) {
                     printf("Le point "); AfficherPoint(p); printf(" n'existe pas\n");
                 }
                 free(p);
