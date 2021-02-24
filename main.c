@@ -5,14 +5,26 @@
 #include "arbre.h"
 #include "fifo.h"
 
+/*
+ * TP5 - Arbre de recherche binaire
+ * Alexandre BOUIJOUX, Patrice MARTIN, Julien TRAVAILLÉ - AS
+ * 
+ * Fonctionnalités implémentées :
+ * - affichage de l'arbre
+ * - ajout / suppression de nœuds
+ * - recherche (en largeur / profondeur) de points dans l'arbre 
+ * - file FIFO utilisée pour la recherche en largeur
+ * - enfiler, défiler, initialiser la file...
+ */
+
 int main() {
 
-    unsigned int size = 7;
+    unsigned int size = 10;
     
     srand(time(NULL));  // pour la valeur aléatoire lors de la suppression d'un nœud
     
     Point repere = { 0, 0, 0 };
-    Noeud racine = { NULL, NULL, NULL};
+    Noeud racine = { NULL, NULL, NULL };
     Fifo *fifo = initFifo(size);
     
     while (1) {
@@ -25,6 +37,7 @@ int main() {
             printf("2 - retirer un point\n");
         }
         printf("3 - afficher l'arbre\n");
+        printf("4 - quitter\n");
         printf("Que voulez-vous faire : ");
         
         scanf(" %i", &val);
@@ -61,6 +74,12 @@ int main() {
                 break;
             case 3:
                 AfficherArbre(&racine);
+                break;
+            case 4:
+                while(SupprimerNoeud(&racine, racine.cle, fifo));
+                printf("ok\n");fflush(stdout);
+                freeFifo(fifo);
+                return 0;
                 break;
             default:
                 break;

@@ -3,7 +3,7 @@
 
 
 
-/*Noeud * RechercherProfondeur(Point *pointATrouver, Noeud *noeudActuel) {
+Noeud * RechercherProfondeur(Point *pointATrouver, Noeud *noeudActuel) {
     
     if (!dist(noeudActuel->cle, pointATrouver)) {   // noeud trouvé
         return noeudActuel;
@@ -24,12 +24,12 @@
     }
     
     return NULL;
-}*/
+}
 
 
 
 Noeud * RechercherNoeudPrecedent(Point *pointATrouver, Noeud *noeudActuel) {
-
+    
     if (noeudActuel->gauche) {
         if (!dist((noeudActuel->gauche)->cle, pointATrouver)) {   // noeud trouvé
             return noeudActuel;
@@ -71,10 +71,8 @@ Noeud * RechercherLargeur(Point *pointATrouver, Fifo *fifo, Noeud *racine) {
         if (!dist(current->cle, pointATrouver)) {
             return current;
         }
-        if (!enfiler(fifo, current->gauche) || !enfiler(fifo, current->droit)) {
-            printf("Erreur : file trop petite");
-            exit(1);
-        }
+        if (current->gauche) { if (!enfiler(fifo, current->gauche)) { printf("Erreur : file trop petite\n"); exit(1); }}
+        if (current->droit) { if (!enfiler(fifo, current->droit)) { printf("Erreur : file trop petite\n"); exit(1); }}
     }    
     return NULL;
 }
@@ -89,42 +87,43 @@ bool SupprimerNoeud(Noeud *racine, Point *pointASupprimer, Fifo *fifo) {
     /* Parcours en largeur */
     Noeud *noeudASupprimer = RechercherLargeur(pointASupprimer, fifo, racine);
     
-    
-    if (!noeudASupprimer) { // si le point à supprimer n'existe pas
+    if (!noeudASupprimer) { // si le point à supprimer n'existe pas dans l'arbre
         return false;
     }
     
     Noeud *gauche = noeudASupprimer->gauche, *droit = noeudASupprimer->droit;
     
-    if (gauche && droit) {
+    if (gauche && droit) { // c'est un tronc
         int r = rand() % 2; // pour garder l'arbre équilibré
         Noeud *n;
         // en fonction du r, par à gauche puis tout à droite ou à droite puis tout à gauche chercher le dernier noeud
         for (n = r ? noeudASupprimer->droit : noeudASupprimer->gauche ; r ? n->gauche : n->droit ; n = r ? n->gauche : n->droit);
         // cherche le noeud parent à celui qui va venir remplacer celui qui va être supprimé
         Noeud *nParent = RechercherNoeudPrecedent(n->cle, racine);
-        // supprime la liaison du noeud parent avec le noeud fils qui est réutilisé
-        nParent->gauche == noeudASupprimer ? (nParent->gauche = NULL) : (nParent->droit = NULL);
+        if (nParent != racine ) {
+            // supprime la liaison du noeud parent avec le noeud fils qui est réutilisé
+            nParent->gauche == n ? (nParent->gauche = NULL) : (nParent->droit = NULL);
+        } else {
+            nParent->gauche == n ? (nParent->gauche = n->gauche) : (nParent->droit = n->droit);
+        }
         // remplace la clé du noeud supprimé par le noeud le plus en bas
         noeudASupprimer->cle = n->cle;
         free(n);
-    } else if (!(gauche || droit)) {
-        // cherche le noeud parent à celui qui va être supprimé
+    } else if (gauche || droit) { // c'est une branche
+
+        Noeud *n = noeudASupprimer->gauche ? noeudASupprimer->gauche : noeudASupprimer->droit;
+        noeudASupprimer->cle = n->cle;
+        noeudASupprimer->gauche = n->gauche;
+        noeudASupprimer->droit = n->droit;
+        free(n);
+    } else { // c'est une feuille
         Noeud *nParent = RechercherNoeudPrecedent(noeudASupprimer->cle, racine);
-        // si c'est le dernier noeud qu'on essaye de supprimer
-        if (nParent) {
-            // supprime la liaison du noeud parent avec le noeud fils qui est réutilisé
+        if (!nParent) { // le noeud qu'on supprime est le dernier de l'arbre
+            noeudASupprimer->cle = NULL;
+        } else {
             nParent->gauche == noeudASupprimer ? (nParent->gauche = NULL) : (nParent->droit = NULL);
             free(noeudASupprimer);
-        } else {
-            noeudASupprimer->cle = NULL;
         }
-    } else { // c'est une feuille
-        Noeud *nCote = gauche ? gauche : droit;
-        noeudASupprimer->cle = nCote->cle;
-        noeudASupprimer->gauche = nCote->gauche;
-        noeudASupprimer->droit = nCote->droit;
-        free(nCote);
     }
 
     return true;
@@ -134,6 +133,7 @@ bool SupprimerNoeud(Noeud *racine, Point *pointASupprimer, Fifo *fifo) {
 
 bool InsererNoeud(Noeud *noeudActuel, Point *pointAInserer, Point *repere, Fifo *fifo) {
     
+    // si aucune clé n'est déjà enregistrée
     if (!noeudActuel->cle) {
         noeudActuel->cle = pointAInserer;
         AfficherPoint(noeudActuel->cle); printf(" inséré en tête\n");
@@ -142,11 +142,11 @@ bool InsererNoeud(Noeud *noeudActuel, Point *pointAInserer, Point *repere, Fifo 
     
     float comp = dist(pointAInserer, repere) - dist(noeudActuel->cle, repere);
     
-    if (!comp) {
+    if (!comp) { // si == 0 alors le point existe déjà
         return false;
     }
     
-    Noeud **noeudCote = comp < 0 ? &(noeudActuel->gauche) : &(noeudActuel->droit);
+    Noeud **noeudCote = comp < 0 ? &(noeudActuel->gauche) : &(noeudActuel->droit);  // point à insérer > ou < au noeud actuel
     
     if (*noeudCote) {
         return InsererNoeud(*noeudCote, pointAInserer, repere, fifo);
@@ -206,6 +206,8 @@ void AfficherArbre(Noeud *racine) {
         AfficherNoeuds(racine, 0);
     }
 }
+
+
 
 
 
