@@ -80,7 +80,7 @@ int main() {
                 printf("z : ");
                 scanf(" %i", &(p->z));
                 system("clear");
-                AfficherArbreSurligne(&racine, p);
+                AfficherArbre(&racine, p);
                 
                 char s;
                 printf("Voulez-vous vraiment supprimer le point "); AfficherPoint(p); printf(" (o/n) : ");
@@ -94,7 +94,7 @@ int main() {
                 break;
             case 3:
                 system("clear");
-                AfficherArbre(&racine);
+                AfficherArbre(&racine, NULL);
                 break;
             case 4:
                 while(SupprimerNoeud(&racine, racine.cle, fifo));

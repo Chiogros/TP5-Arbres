@@ -34,12 +34,8 @@ bool InsererNoeud(Noeud *noeudActuel, Point *pointAInserer, Point *repere, Fifo 
 bool SupprimerNoeud(Noeud *racine, Point *pointASupprimer, Fifo *fifo);
 // Affichage
 void AfficherPoint(Point *point);
-void AfficherNoeuds(Noeud *noeudActuel, int espace);
-void AfficherArbre(Noeud *racine);
-// Affichage avec point surligné pour la suppression
-void AfficherPointSurligne(Point *point);
-void AfficherNoeudsSurligne(Noeud *noeudActuel, int espace, Point *pASurligner);
-void AfficherArbreSurligne(Noeud *racine, Point *pASurligner);
+void AfficherNoeuds(Noeud *noeudActuel, int espace, Point *pASurligner);
+void AfficherArbre(Noeud *racine, Point *pASurligner);
 
 
 #endif
