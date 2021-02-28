@@ -80,7 +80,7 @@ int main() {
                 printf("z : ");
                 scanf(" %i", &(p->z));
                 system("clear");
-                AfficherArbre(&racine);
+                AfficherArbreSurligne(&racine, p);
                 
                 char s;
                 printf("Voulez-vous vraiment supprimer le point "); AfficherPoint(p); printf(" (o/n) : ");

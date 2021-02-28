@@ -205,3 +205,54 @@ void AfficherArbre(Noeud *racine) {
     }
 }
 
+/*
+ * Affichage avec point surligné pour la suppression
+ * O(1)
+ */
+void AfficherPointSurligne(Point *point) {
+    
+    printf("%s(%i, %i, %i)%s","\x1B[31m", point->x, point->y, point->z, "\x1B[37m");
+
+}
+
+
+/*
+ * Comme AfficherNoeuds() mais pour la couleur de suppression
+ * O(n)
+ */
+void AfficherNoeudsSurligne(Noeud *noeudActuel, int espace, Point *pASurligner) { 
+
+    if (noeudActuel == NULL) {
+        return; 
+    }
+    
+    espace += 10; 
+    
+    AfficherNoeudsSurligne(noeudActuel->droit, espace, pASurligner); 
+
+    for (int i = 10; i < espace; i++) { // permet de décaler l'affichage en fonction de la position du noeud dans l'arbre
+        printf(" "); 
+    }
+    
+    dist(noeudActuel->cle, pASurligner) ? AfficherPoint(noeudActuel->cle) : AfficherPointSurligne(noeudActuel->cle);
+    printf("\n");
+    
+    AfficherNoeudsSurligne(noeudActuel->gauche, espace, pASurligner); 
+} 
+
+
+/*
+ * Comme AfficherArbre() mais pour la couleur de suppression
+ * O(n) : hérité de AfficherNoeuds()
+ */
+void AfficherArbreSurligne(Noeud *racine, Point *pASurligner) {
+    
+    if (!racine->cle) {
+        printf("Arbre vide\n");
+    } else {
+        // Affichage de gauche à droite dans la console, i.e. la racine de l'arbre est à gauche
+        printf("------------------------------------------>\n");
+        AfficherNoeudsSurligne(racine, 0, pASurligner);
+    }
+}
+
