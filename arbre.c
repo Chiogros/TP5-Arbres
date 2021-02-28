@@ -1,62 +1,53 @@
 #include "arbre.h"
 
 
-
-
-Noeud * RechercherProfondeur(Point *pointATrouver, Noeud *noeudActuel) {
+/*
+ * O(logn) 
+ * Ω(5) : O(1) + 1 + 1 + 1 + 1
+ */
+Noeud * RechercherProfondeur(Point *pointATrouver, Noeud *noeudActuel) {    // utilisé si activé dans la fonction SupprimerNoeud()
     
-    if (!dist(noeudActuel->cle, pointATrouver)) {   // noeud trouvé
+    Point p = { 0, 0, 0 };
+    float distance = dist(noeudActuel->cle, &p) - dist(pointATrouver, &p);
+    Noeud *cote;
+
+    if (!distance) {
         return noeudActuel;
+    } else if (distance > 0) {
+        cote = noeudActuel->gauche;
+    } else {
+        cote = noeudActuel->droit;
     }
-
-    Noeud *n;
-    if (noeudActuel->gauche) {
-        n = RechercherProfondeur(pointATrouver, noeudActuel->gauche);
-        if (n) {
-            return n;
-        }
-    }
-    if (noeudActuel->droit) {
-        n = RechercherProfondeur(pointATrouver, noeudActuel->droit);
-        if (n) {
-            return n;
-        }
-    }
-    
-    return NULL;
+    return cote ? RechercherProfondeur(pointATrouver, cote) : NULL;
 }
 
 
 
+/*
+ * O(logn)
+ * Ω(6) : O(1) + O(1) + 1 + 1 + 1 + 1
+ */
 Noeud * RechercherNoeudPrecedent(Point *pointATrouver, Noeud *noeudActuel) {
     
-    if (noeudActuel->gauche) {
-        if (!dist((noeudActuel->gauche)->cle, pointATrouver)) {   // noeud trouvé
-            return noeudActuel;
-        } else {
-            Noeud *n = RechercherNoeudPrecedent(pointATrouver, noeudActuel->gauche);
-            if (n) {
-                return n;
-            }
-        }
+    Point p = { 0, 0, 0 };
+    float distance = dist(noeudActuel->cle, &p) - dist(pointATrouver, &p);
+    Noeud *cote;
+
+    if (!distance) {
+        return noeudActuel;
+    } else if (distance > 0) {
+        cote = noeudActuel->gauche;
+    } else {
+        cote = noeudActuel->droit;
     }
-    
-    if (noeudActuel->droit) {
-        if (!dist((noeudActuel->droit)->cle, pointATrouver)) {   // noeud trouvé
-            return noeudActuel;
-        } else {
-            Noeud *n = RechercherNoeudPrecedent(pointATrouver, noeudActuel->droit);
-            if (n) {
-                return n;
-            }
-        }
-    }
-    
-    return NULL;  
+
+    return !dist(cote->cle, pointATrouver) ? noeudActuel : RechercherNoeudPrecedent(pointATrouver, cote);
 }
 
 
-
+/*
+ * O(n)
+ */
 Noeud * RechercherLargeur(Point *pointATrouver, Fifo *fifo, Noeud *racine) {
     
     if (!racine->cle) {
@@ -78,7 +69,9 @@ Noeud * RechercherLargeur(Point *pointATrouver, Fifo *fifo, Noeud *racine) {
 }
 
 
-
+/*
+ * O(logn)
+ */
 bool SupprimerNoeud(Noeud *racine, Point *pointASupprimer, Fifo *fifo) {
     
     /* Parcours en profondeur */
@@ -90,7 +83,7 @@ bool SupprimerNoeud(Noeud *racine, Point *pointASupprimer, Fifo *fifo) {
     if (!noeudASupprimer) { // si le point à supprimer n'existe pas dans l'arbre
         return false;
     }
-    
+
     Noeud *gauche = noeudASupprimer->gauche, *droit = noeudASupprimer->droit;
     
     if (gauche && droit) { // c'est un tronc
@@ -100,17 +93,12 @@ bool SupprimerNoeud(Noeud *racine, Point *pointASupprimer, Fifo *fifo) {
         for (n = r ? noeudASupprimer->droit : noeudASupprimer->gauche ; r ? n->gauche : n->droit ; n = r ? n->gauche : n->droit);
         // cherche le noeud parent à celui qui va venir remplacer celui qui va être supprimé
         Noeud *nParent = RechercherNoeudPrecedent(n->cle, racine);
-        if (nParent != racine ) {
-            // supprime la liaison du noeud parent avec le noeud fils qui est réutilisé
-            nParent->gauche == n ? (nParent->gauche = NULL) : (nParent->droit = NULL);
-        } else {
-            nParent->gauche == n ? (nParent->gauche = n->gauche) : (nParent->droit = n->droit);
-        }
+        // supprime la liaison du noeud parent avec le noeud fils qui est réutilisé
+        nParent->gauche == n ? (nParent->gauche = NULL) : (nParent->droit = NULL);
         // remplace la clé du noeud supprimé par le noeud le plus en bas
         noeudASupprimer->cle = n->cle;
         free(n);
     } else if (gauche || droit) { // c'est une branche
-
         Noeud *n = noeudASupprimer->gauche ? noeudASupprimer->gauche : noeudASupprimer->droit;
         noeudASupprimer->cle = n->cle;
         noeudASupprimer->gauche = n->gauche;
@@ -118,19 +106,20 @@ bool SupprimerNoeud(Noeud *racine, Point *pointASupprimer, Fifo *fifo) {
         free(n);
     } else { // c'est une feuille
         Noeud *nParent = RechercherNoeudPrecedent(noeudASupprimer->cle, racine);
-        if (!nParent) { // le noeud qu'on supprime est le dernier de l'arbre
+        if (nParent == noeudASupprimer) { // le noeud qu'on supprime est le dernier de l'arbre
             noeudASupprimer->cle = NULL;
         } else {
             nParent->gauche == noeudASupprimer ? (nParent->gauche = NULL) : (nParent->droit = NULL);
             free(noeudASupprimer);
         }
     }
-
     return true;
 }
 
 
-
+/*
+ * O(logn)
+ */
 bool InsererNoeud(Noeud *noeudActuel, Point *pointAInserer, Point *repere, Fifo *fifo) {
     
     // si aucune clé n'est déjà enregistrée
@@ -153,6 +142,10 @@ bool InsererNoeud(Noeud *noeudActuel, Point *pointAInserer, Point *repere, Fifo 
     }
     
     *noeudCote = malloc(sizeof(**noeudCote));
+    if (!*noeudCote) {
+        printf("erreur : pas de malloc pour **noeudCote dans InsererNoeud()\n");
+        fflush(stdout);
+    }
     (*noeudCote)->cle = pointAInserer;
     
     // Afficher où s'est inséré le point
@@ -164,7 +157,9 @@ bool InsererNoeud(Noeud *noeudActuel, Point *pointAInserer, Point *repere, Fifo 
 }
 
 
-
+/*
+ * O(1)
+ */
 void AfficherPoint(Point *point) {
     
     printf("(%i, %i, %i)", point->x, point->y, point->z);
@@ -172,43 +167,41 @@ void AfficherPoint(Point *point) {
 }
 
 
-
+/*
+ * O(n)
+ */
 void AfficherNoeuds(Noeud *noeudActuel, int espace) { 
 
     if (noeudActuel == NULL) {
         return; 
     }
     
-    espace += 9; 
+    espace += 10; 
     
     AfficherNoeuds(noeudActuel->droit, espace); 
-    
-    for (int i = 9; i < espace; i++) { // permet de décaler l'affichage en fonction de la position du noeud dans l'arbre
+
+    for (int i = 10; i < espace; i++) { // permet de décaler l'affichage en fonction de la position du noeud dans l'arbre
         printf(" "); 
     }
     
     AfficherPoint(noeudActuel->cle);
-    if (noeudActuel->gauche && !noeudActuel->droit) { printf("┐"); }
-    else if (!noeudActuel->gauche && noeudActuel->droit) { printf("┘"); }
     printf("\n");
     
     AfficherNoeuds(noeudActuel->gauche, espace); 
 } 
 
 
-
+/*
+ * O(n) : hérité de AfficherNoeuds()
+ */
 void AfficherArbre(Noeud *racine) {
     
     if (!racine->cle) {
         printf("Arbre vide\n");
     } else {
         // Affichage de gauche à droite dans la console, i.e. la racine de l'arbre est à gauche
+        printf("------------------------------------------>\n");
         AfficherNoeuds(racine, 0);
     }
 }
-
-
-
-
-
 
