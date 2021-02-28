@@ -9,10 +9,16 @@
  * TP5 - Arbre de recherche binaire
  * Alexandre BOUIJOUX, Patrice MARTIN, Julien TRAVAILLÉ - AS
  * 
+ * Emails :
+ * - alexandre.bouijoux@etu.univ-grenoble-alpes.fr
+ * - patrice.martin@etu.univ-grenoble-alpes.fr
+ * - julien.travaille@etu.univ-grenoble-alpes.fr
+ * 
  * Fonctionnalités implémentées :
  * - affichage de l'arbre
  * - ajout / suppression de nœuds
- * - recherche (en largeur / profondeur) de points dans l'arbre 
+ * - valeur aléatoire pour garder l'arbre équilibré lors de la suppression d'un noeud
+ * - recherche (en largeur ou profondeur) de points dans l'arbre 
  * - file FIFO utilisée pour la recherche en largeur
  * - enfiler, défiler, initialiser la file...
  */
@@ -51,6 +57,7 @@ int main() {
                 scanf(" %i", &(p->y));
                 printf("z : ");
                 scanf(" %i", &(p->z));
+                system("clear");
                 if (!InsererNoeud(&racine, p, &repere, fifo)) {
                     printf("Le point "); AfficherPoint(p); printf(" existe déjà\n");
                 }
@@ -67,21 +74,29 @@ int main() {
                 scanf(" %i", &(p->y));
                 printf("z : ");
                 scanf(" %i", &(p->z));
-                if (!SupprimerNoeud(&racine, p, fifo)) {
+                system("clear");
+                AfficherArbre(&racine);
+                char s;
+                printf("Voulez-vous vraiment supprimer le point "); AfficherPoint(p); printf(" (o/n) : ");
+                scanf(" %c", &s);
+                system("clear");
+                if (s == 'o' && !SupprimerNoeud(&racine, p, fifo)) {
                     printf("Le point "); AfficherPoint(p); printf(" n'existe pas\n");
                 }
                 free(p);
                 break;
             case 3:
+                system("clear");
                 AfficherArbre(&racine);
                 break;
             case 4:
                 while(SupprimerNoeud(&racine, racine.cle, fifo));
-                printf("ok\n");fflush(stdout);
+                printf("fifo\n");fflush(stdout);
                 freeFifo(fifo);
                 return 0;
                 break;
             default:
+                system("clear");
                 break;
         }
     }

@@ -1,7 +1,9 @@
 #include "fifo.h"
 
 
-
+/*
+ * O(n)
+ */
 Fifo *initFifo(unsigned int size) {
   
     if (size <= 1) {
@@ -25,8 +27,10 @@ Fifo *initFifo(unsigned int size) {
 }
 
 
-
-void freeFifo(Fifo *fifo) {
+/*
+ * O(n)
+ */
+void freeFifo(Fifo *fifo) { // libère toutes les cases fifo
     
     Fifo *current = fifo;
     Fifo *back;
@@ -42,7 +46,9 @@ void freeFifo(Fifo *fifo) {
 }
 
 
-
+/*
+ * O(n)
+ */
 bool isEmpty(Fifo *fifo) {
     
     Fifo *current = fifo;
@@ -61,7 +67,9 @@ bool isEmpty(Fifo *fifo) {
 }
 
 
-
+/*
+ * O(n)
+ */
 bool isFull(Fifo *fifo) {
     
     Fifo *current = fifo;
@@ -80,7 +88,9 @@ bool isFull(Fifo *fifo) {
 }
 
 
-
+/*
+ * O(n) : hérité de queue()
+ */
 Fifo * head(Fifo *fifo) {
 
     return queue(fifo)->next;
@@ -88,7 +98,9 @@ Fifo * head(Fifo *fifo) {
 }
 
 
-
+/*
+ * O(n)
+ */
 Fifo * queue(Fifo *fifo) {
     
     Fifo *current;
@@ -99,7 +111,9 @@ Fifo * queue(Fifo *fifo) {
 }
 
 
-
+/*
+ * O(n)
+ */
 bool enfiler(Fifo *fifo, Noeud *element) {
     
     if (isFull(fifo) || !element) {
@@ -115,7 +129,9 @@ bool enfiler(Fifo *fifo, Noeud *element) {
 }
 
 
-
+/*
+ * O(n)
+ */
 Noeud * defiler(Fifo *fifo) {
     
     if (isEmpty(fifo)) {
@@ -124,7 +140,7 @@ Noeud * defiler(Fifo *fifo) {
     
     Fifo *current = fifo;
     Noeud *toReturn = current->noeud;
-    for ( ; current->next != fifo ; current = current->next) {
+    for ( ; current->next != fifo ; current = current->next) {  // décale tous les noeuds dans les fifo (je n'ai pas réussi à utiliser un double pointeur sur la tête de la file)
         current->noeud = (current->next)->noeud;
     }
     current->noeud = NULL;
