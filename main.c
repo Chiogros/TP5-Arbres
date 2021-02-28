@@ -91,7 +91,6 @@ int main() {
                 break;
             case 4:
                 while(SupprimerNoeud(&racine, racine.cle, fifo));
-                printf("fifo\n");fflush(stdout);
                 freeFifo(fifo);
                 return 0;
                 break;
